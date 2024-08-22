@@ -85,6 +85,8 @@ interface IProps {
     // e.g. any special chars in the path or book title should be appropriately encoded
     // e.g. if title is C#, url should be http://localhost:8089/bloom/C:/PathToTemp/PlaceForStagingBook/C%23
     url: string;
+    distributionUrl?: string;
+    metaJsonUrl?: string;
     landscape: boolean; // whether viewing as landscape or portrait
     // ``paused`` allows the parent to control pausing of audio. We expect we may supply
     // a click/touch event callback if needed to support pause-on-touch.
@@ -469,9 +471,11 @@ export class BloomPlayerCore extends React.Component<IProps, IState> {
                 // Most (all?) bloom-player hosts are already looking for that, then looking for a name
                 // matching the zip file's name, then going with the first.
                 const haveFullPath = filename.endsWith(".htm");
-                const urlOfBookHtmlFile = haveFullPath
-                    ? this.sourceUrl
-                    : this.sourceUrl + "/" + filename + ".htm";
+                const haveBlobPath = this.sourceUrl.startsWith("blob:");
+                const urlOfBookHtmlFile =
+                    haveFullPath || haveBlobPath
+                        ? this.sourceUrl
+                        : this.sourceUrl + "/" + filename + ".htm";
 
                 this.urlPrefix = haveFullPath
                     ? this.sourceUrl.substring(
@@ -486,22 +490,24 @@ export class BloomPlayerCore extends React.Component<IProps, IState> {
                 // so asking for .distribution fails even if the local book folder (e.g., Testing
                 // away again) contains a .distribution file. I just tested using a book locally
                 // published through the Bloom Editor server.
-                const distributionPromise = axios
-                    .get(this.fullUrl(".distribution"))
-                    .then(
-                        result => {
-                            return result;
-                        },
-                        // Very possibly the BloomPUB doesn't have this file. The only way to find this
-                        // out is by the request failing. We don't consider this a 'real' failure and
-                        // just fulfil the promise with an object indicating that distribution is an
-                        // empty string.
-                        error => {
-                            return { data: "" };
-                        }
-                    );
+                const distributionUrl =
+                    this.props.distributionUrl || this.fullUrl(".distribution");
+                const distributionPromise = axios.get(distributionUrl).then(
+                    result => {
+                        return result;
+                    },
+                    // Very possibly the BloomPUB doesn't have this file. The only way to find this
+                    // out is by the request failing. We don't consider this a 'real' failure and
+                    // just fulfil the promise with an object indicating that distribution is an
+                    // empty string.
+                    error => {
+                        return { data: "" };
+                    }
+                );
                 const htmlPromise = axios.get(urlOfBookHtmlFile);
-                const metadataPromise = axios.get(this.fullUrl("meta.json"));
+                const metaJsonUrl =
+                    this.props.metaJsonUrl || this.fullUrl("meta.json");
+                const metadataPromise = axios.get(metaJsonUrl);
                 Promise.all([htmlPromise, metadataPromise, distributionPromise])
                     .then(result => {
                         const [
@@ -1872,7 +1878,8 @@ export class BloomPlayerCore extends React.Component<IProps, IState> {
     private fullUrl(url: string | null): string {
         // Enhance: possibly we should only do this if we somehow determine it is a relative URL?
         // But the things we apply it to always are, in bloom books.
-        return this.urlPrefix + "/" + url;
+        const hasBlobUrl = url?.startsWith("blob:");
+        return hasBlobUrl && url ? url : this.urlPrefix + "/" + url;
     }
 
     private swiperInstance: SwiperInstance | null;

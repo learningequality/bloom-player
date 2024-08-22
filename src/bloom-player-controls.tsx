@@ -45,6 +45,8 @@ interface IProps {
     // e.g. if title is C#, url should be http://localhost:8089/bloom/C:/PathToTemp/PlaceForStagingBook/C%23
     // (Not "[...]/C#" nor "[...]%2FC%2523", and most certainly not with any XML (entity) encoding)
     url: string;
+    distributionUrl?: string;
+    metaJsonUrl?: string;
     initiallyShowAppBar: boolean;
     allowToggleAppBar: boolean;
     showBackButton: boolean;
@@ -933,6 +935,8 @@ export const BloomPlayerControls: React.FunctionComponent<IProps &
                 // We believe/hope we can do this a better way (without LegacyRef) once BloomPlayerCore is a function component.
                 ref={coreRef as LegacyRef<BloomPlayerCore>}
                 url={props.url}
+                distributionUrl={props.distributionUrl}
+                metaJsonUrl={props.metaJsonUrl}
                 landscape={windowLandscape}
                 paused={paused}
                 preferredUiLanguages={preferredUiLanguages}
@@ -1123,6 +1127,10 @@ export function InitBloomPlayerControls() {
                 roundMarginToNearestK={getNumericUrlParam(
                     "roundMarginToNearestK"
                 )}
+                distributionUrl={getQueryStringParamAndUnencode(
+                    "distributionUrl"
+                )}
+                metaJsonUrl={getQueryStringParamAndUnencode("metaJsonUrl")}
             />
         </ThemeProvider>,
         document.getElementById("root")

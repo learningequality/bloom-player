@@ -148,9 +148,12 @@ export class Music {
         // so it will cache the previous content of the file or
         // remember if no such file previously existed. So we add a bogus query string
         // based on the current time so that it asks the server for the file again.
-        const url = this.currentMusicUrl(
+        let url = this.currentMusicUrl(
             music + "?nocache=" + new Date().getTime()
         );
+        if (url.startsWith("blob")) {
+            url = this.currentMusicUrl(music);
+        }
         const player = this.getPlayer();
         player.setAttribute("src", music ? url : "");
         if (volume.length) {
@@ -178,7 +181,15 @@ export class Music {
     private musicLogIndex = -1;
 
     private currentMusicUrl(filename: string): string {
-        return this.urlPrefix + "/audio/" + filename;
+        let result = this.urlPrefix + "/audio/" + filename;
+        if (filename.startsWith("_")) {
+            result =
+                "blob:http://" +
+                this.urlPrefix.split("/").at(-2) +
+                "/" +
+                filename.substring(1);
+        }
+        return result;
     }
 
     private playEnded() {
