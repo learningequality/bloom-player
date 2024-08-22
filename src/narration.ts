@@ -977,14 +977,25 @@ function updatePlayerStatus() {
     // tool and haven't recorded anything yet). So we just try to play it and see what happens.
     // The optional param tells Bloom not to report an error if the file isn't found, and is ignored in
     // other contexts.
-    player.setAttribute(
-        "src",
-        url + "?nocache=" + new Date().getTime() + "&optional=true"
-    );
+    if (url.startsWith("blob")) player.setAttribute("src", url);
+    else
+        player.setAttribute(
+            "src",
+            url + "?nocache=" + new Date().getTime() + "&optional=true"
+        );
 }
 
 function currentAudioUrl(id: string): string {
-    const result = urlPrefix() + "/audio/" + id + ".mp3";
+    let result = urlPrefix() + "/audio/" + id + ".mp3";
+    if (id.startsWith("_")) {
+        result =
+            "blob:http://" +
+            urlPrefix()
+                .split("/")
+                .at(-2) +
+            "/" +
+            id.substring(1);
+    }
     return result;
 }
 
