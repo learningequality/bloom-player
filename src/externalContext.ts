@@ -43,7 +43,9 @@ export function sendMessageToHost(messageObj: WithMessageType) {
     // receives the message.
     // This is probably not used now, but if we ever did, it now sends a messageType as well.
     if (window.parent) {
-        window.parent.postMessage(message, "*"); // any window may receive
+        messageObj["nameSpace"] = "BloomPlayer";
+        messageObj["data"] = messageObj["params"];
+        window.parent.postMessage(messageObj, "*"); // any window may receive
     }
 }
 
