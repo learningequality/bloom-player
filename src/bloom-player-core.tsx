@@ -89,6 +89,7 @@ interface IProps {
     url: string;
     distributionUrl?: string;
     metaJsonUrl?: string;
+    questionsJsonUrl?: string;
     landscape: boolean; // whether viewing as landscape or portrait
     // ``paused`` allows the parent to control pausing of audio. We expect we may supply
     // a click/touch event callback if needed to support pause-on-touch.
@@ -279,7 +280,8 @@ export class BloomPlayerCore extends React.Component<IProps, IState> {
         // notifications from narration.ts etc about duration etc.
         BloomPlayerCore.currentPagePlayer = this;
         this.legacyQuestionHandler = new LegacyQuestionHandler(
-            props.locationOfDistFolder
+            props.locationOfDistFolder,
+            props.questionsJsonUrl
         );
     }
 
