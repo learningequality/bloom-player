@@ -5,11 +5,16 @@ import { OldQuestionsConverter } from "./old-questions";
 // "questions.json" was the trigger to make pages at the end.
 
 export class LegacyQuestionHandler {
-    public constructor(locationOfDistFolder: string) {
+    public constructor(
+        locationOfDistFolder: string,
+        questionsJsonUrl?: string
+    ) {
         this.locationOfDistFolder = locationOfDistFolder;
+        this.questionsJsonUrl = questionsJsonUrl;
     }
     private needQuizCss = false;
     private locationOfDistFolder: string;
+    private questionsJsonUrl?: string;
     public getPromiseForAnyQuizCss() {
         return this.needQuizCss
             ? // enhance: we would like to change this name to "simpleComprehensionQuiz.css", but
@@ -29,7 +34,8 @@ export class LegacyQuestionHandler {
         pageClass,
         finished: () => void
     ) {
-        const urlOfQuestionsFile = urlPrefix + "/questions.json";
+        const urlOfQuestionsFile =
+            this.questionsJsonUrl || urlPrefix + "/questions.json";
         axios
             .get(urlOfQuestionsFile)
             .then(qfResult => {

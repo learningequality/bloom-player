@@ -47,6 +47,7 @@ interface IProps {
     url: string;
     distributionUrl?: string;
     metaJsonUrl?: string;
+    questionsJsonUrl?: string;
     initiallyShowAppBar: boolean;
     allowToggleAppBar: boolean;
     showBackButton: boolean;
@@ -938,6 +939,7 @@ export const BloomPlayerControls: React.FunctionComponent<IProps &
                 url={props.url}
                 distributionUrl={props.distributionUrl}
                 metaJsonUrl={props.metaJsonUrl}
+                questionsJsonUrl={props.questionsJsonUrl}
                 landscape={windowLandscape}
                 paused={paused}
                 preferredUiLanguages={preferredUiLanguages}
@@ -1132,6 +1134,9 @@ export function InitBloomPlayerControls() {
                     "distributionUrl"
                 )}
                 metaJsonUrl={getQueryStringParamAndUnencode("metaJsonUrl")}
+                questionsJsonUrl={getQueryStringParamAndUnencode(
+                    "questionsJsonUrl"
+                )}
             />
         </ThemeProvider>,
         document.getElementById("root")
